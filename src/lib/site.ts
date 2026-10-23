@@ -215,6 +215,7 @@ export const NAV = [
   { href: "/cap", label: "CAP" },
   { href: "/recuperacion-de-puntos", label: "Puntos" },
   { href: "/bajo-el-capo", label: "Bajo el capó" },
+  { href: "/conoce-tu-coche", label: "Tu coche" },
   { href: "/#sedes", label: "Sedes" },
   { href: "/nosotros", label: "Nosotros" },
 ];

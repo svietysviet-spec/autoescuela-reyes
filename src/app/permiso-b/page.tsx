@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Contact } from "@/components/Contact";
+import { DarkPromo } from "@/components/DarkPromo";
 import { PageHero } from "@/components/PageHero";
 import { Pricing } from "@/components/Pricing";
 import { Split } from "@/components/Split";
@@ -65,6 +66,20 @@ export default function PermisoB() {
             </li>
           ))}
         </ul>
+      </Section>
+
+      <Section tone="plain" labelledBy="coche3d-title" className="!pb-0">
+        <DarkPromo
+          id="coche3d-title"
+          image="/img/coche/general.webp"
+          alt="El coche de prácticas de Autoescuela Reyes en 3D, blanco con franjas amarillas"
+          contain
+          eyebrow="Antes de tu primera clase"
+          title="Súbete a nuestro coche de prácticas."
+          body="Siéntate al volante en 3D: pedales y doble pedal del profesor, luces, intermitentes, cambios, testigos… Pulsa cada mando para ver qué hace y ponte a prueba."
+          href="/conoce-tu-coche"
+          cta="Conoce tu coche"
+        />
       </Section>
 
       <Section tone="plain" labelledBy="examenes-title">

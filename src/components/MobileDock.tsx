@@ -12,7 +12,7 @@ export function MobileDock() {
   const waHref = wa(actions.whatsapp, actions.message);
 
   // en «Bajo el capó» el botón flotante taparía la ficha: WhatsApp sigue en «Pide información»
-  const showFab = !pathname.startsWith("/bajo-el-capo");
+  const showFab = !pathname.startsWith("/bajo-el-capo") && !pathname.startsWith("/conoce-tu-coche");
 
   return (
     <div className="md:hidden">

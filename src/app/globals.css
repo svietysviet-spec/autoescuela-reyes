@@ -645,3 +645,358 @@ body {
     box-shadow: 0 0 14px #ff5a4f66;
   }
 }
+
+/* ───────── Conoce tu coche (3D) ───────── */
+@layer components {
+  .car-stage {
+    color: #fff;
+    background: radial-gradient(120% 90% at 50% 40%, #2b313d 0%, #12151b 55%, #07080b 100%);
+    transition: background var(--dur-3) var(--ease-out);
+  }
+  .car-stage.is-night {
+    background: radial-gradient(120% 90% at 50% 45%, #141a2b 0%, #06070c 60%, #000 100%);
+  }
+  .car-stage canvas {
+    touch-action: none;
+  }
+  .car-bigtitle {
+    display: inline-block;
+    font-size: clamp(84px, 19vw, 300px);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    color: rgb(255 255 255 / 0.06);
+    white-space: nowrap;
+    animation: bigtitle-in 600ms var(--ease-out) both;
+  }
+  @keyframes bigtitle-in {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.98);
+    }
+  }
+  .car-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .car-card,
+  .car-ficha {
+    border-radius: 16px;
+    background: rgb(17 20 26 / 0.84);
+    border: 1px solid rgb(255 255 255 / 0.09);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    color: #fff;
+  }
+  .car-vista {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: rgb(255 255 255 / 0.55);
+    transition:
+      color var(--dur-2) var(--ease-out),
+      background-color var(--dur-2) var(--ease-out);
+  }
+  .car-vista:hover:not(:disabled) {
+    color: #fff;
+    background: rgb(255 255 255 / 0.06);
+  }
+  .car-vista[aria-current="true"] {
+    color: #fff;
+  }
+  .car-vista[aria-current="true"] .car-num {
+    color: var(--accent);
+  }
+  .car-vista:disabled {
+    cursor: default;
+    color: rgb(255 255 255 / 0.3);
+  }
+  .car-num {
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: rgb(255 255 255 / 0.35);
+  }
+  .car-soon {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 99px;
+    background: rgb(255 255 255 / 0.08);
+    color: rgb(255 255 255 / 0.5);
+  }
+  .car-round {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 18px;
+    background: rgb(17 20 26 / 0.7);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transition: transform var(--dur-1) var(--ease-out);
+  }
+  .car-round:active {
+    transform: scale(0.94);
+  }
+  .car-chip {
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgb(255 255 255 / 0.9);
+    background: rgb(255 255 255 / 0.07);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    transition:
+      background-color var(--dur-2) var(--ease-out),
+      transform var(--dur-1) var(--ease-out);
+  }
+  .car-chip:hover {
+    background: rgb(255 255 255 / 0.12);
+  }
+  .car-chip:active {
+    transform: scale(0.97);
+  }
+  .car-chip[aria-pressed="true"] {
+    background: var(--accent);
+    color: var(--on-accent);
+    border-color: transparent;
+  }
+  .car-hotspot {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: auto;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--on-accent);
+    background: var(--accent);
+    box-shadow:
+      0 0 0 4px rgb(247 206 62 / 0.28),
+      0 4px 14px rgb(0 0 0 / 0.4);
+    animation: hotspot-pulse 1.8s var(--ease-out) infinite;
+  }
+  .car-hotspot[aria-pressed="true"] {
+    background: #fff;
+  }
+  .car-hotspot-label {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 6px);
+    transform: translateX(-50%);
+    white-space: nowrap;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    background: rgb(17 20 26 / 0.85);
+    opacity: 0;
+    transition: opacity var(--dur-2) var(--ease-out);
+  }
+  .car-hotspot:hover .car-hotspot-label,
+  .car-hotspot:focus-visible .car-hotspot-label,
+  .car-hotspot[aria-pressed="true"] .car-hotspot-label {
+    opacity: 1;
+  }
+  @keyframes hotspot-pulse {
+    50% {
+      box-shadow:
+        0 0 0 9px rgb(247 206 62 / 0.12),
+        0 4px 14px rgb(0 0 0 / 0.4);
+    }
+  }
+  .car-tabs {
+    position: absolute;
+    inset-inline: 0;
+    bottom: var(--dock-h);
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 8px 12px;
+    background: rgb(7 8 11 / 0.85);
+    border-top: 1px solid rgb(255 255 255 / 0.08);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+  .car-tab {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgb(255 255 255 / 0.65);
+  }
+  .car-tab[aria-current="true"] {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .car-tab:disabled {
+    color: rgb(255 255 255 / 0.3);
+  }
+  .car-ficha {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 25;
+    max-height: calc(44svh + var(--dock-h));
+    padding-bottom: var(--dock-h);
+    overflow: hidden;
+    border-radius: 20px 20px 0 0;
+    transform: translateY(calc(100% - 64px - var(--dock-h)));
+    transition: transform var(--dur-3) var(--ease-out);
+  }
+  .car-ficha.is-open {
+    z-index: 45;
+    transform: none;
+    overflow-y: auto;
+  }
+  .car-ficha-grab {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 64px;
+    padding: 8px 20px 12px;
+    background: rgb(17 20 26 / 0.95);
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  }
+  @media (min-width: 1024px) {
+    .car-ficha {
+      position: absolute;
+      inset: 88px 24px auto auto;
+      width: 380px;
+      max-height: calc(100% - 112px);
+      padding-bottom: 0;
+      border-radius: 16px;
+      overflow-y: auto;
+      transform: none;
+      transition: none;
+      animation: ficha-in var(--dur-3) var(--ease-out);
+    }
+  }
+  @keyframes ficha-in {
+    from {
+      opacity: 0;
+      transform: translateX(16px);
+    }
+  }
+  .car-panel {
+    bottom: calc(var(--dock-h) + 64px);
+    max-height: calc(100% - 170px - var(--dock-h));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .car-chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    margin-inline: -16px;
+    padding-inline: 16px;
+    scrollbar-width: none;
+  }
+  .car-chips > * {
+    flex-shrink: 0;
+  }
+  @media (min-width: 1024px) {
+    .car-panel {
+      bottom: 32px;
+      max-height: calc(100% - 120px);
+    }
+    .car-chips {
+      flex-wrap: wrap;
+      overflow: visible;
+      margin-inline: 0;
+      padding-inline: 0;
+    }
+  }
+  .car-fade {
+    animation: car-fade var(--dur-3) var(--ease-out);
+  }
+  @keyframes car-fade {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+  .car-answer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    text-align: left;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.25;
+    background: rgb(255 255 255 / 0.06);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    transition:
+      background-color var(--dur-2) var(--ease-out),
+      border-color var(--dur-2) var(--ease-out);
+  }
+  .car-answer:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.11);
+  }
+  .car-answer:disabled {
+    cursor: default;
+    opacity: 0.55;
+  }
+  .car-answer[data-state="ok"] {
+    opacity: 1;
+    background: rgb(61 220 132 / 0.16);
+    border-color: #3ddc84;
+  }
+  .car-answer[data-state="mal"] {
+    opacity: 1;
+    background: rgb(255 107 97 / 0.14);
+    border-color: #ff6b61;
+  }
+  .car-answer-key {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgb(255 255 255 / 0.1);
+  }
+  .car-medida {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--on-accent);
+    background: var(--accent);
+    box-shadow: 0 4px 14px rgb(0 0 0 / 0.35);
+  }
+}

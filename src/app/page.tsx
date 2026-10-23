@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { DarkPromo } from "@/components/DarkPromo";
 import { Contact } from "@/components/Contact";
 import { WhatsApp } from "@/components/icons";
 import { Locations } from "@/components/Locations";
@@ -151,33 +152,30 @@ export default function Home() {
         </ul>
       </Section>
 
-      {/* Bajo el capó (explorador 3D) */}
-      <Section tone="plain" labelledBy="capo-title" className="!pb-0">
-        <div className="reveal grid overflow-hidden rounded-[22px] bg-[#0b0d12] text-white md:grid-cols-[1.1fr_1fr]">
-          <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[360px]">
-            <Image
-              src="/img/capo/motor.webp"
-              alt="Compartimento del motor en 3D con el radiador, la batería y los depósitos"
-              fill
-              sizes="(min-width: 768px) 560px, 100vw"
-              className="object-cover"
-            />
-          </div>
-          <div className="flex flex-col justify-center p-6 md:p-10">
-            <p className="eyebrow">Nuevo · En 3D</p>
-            <h2 id="capo-title" className="h2 mt-2">
-              Aprende qué hay bajo el capó.
-            </h2>
-            <p className="mt-3 text-white/70">
-              Gira cada pieza, mírala por dentro y aprende a revisar el aceite, el refrigerante, los frenos o la batería. Con
-              preguntas tipo test para el examen.
-            </p>
-            <div className="mt-6">
-              <Button href="/bajo-el-capo" arrow>
-                Abrir el explorador
-              </Button>
-            </div>
-          </div>
+      {/* Exploradores 3D: el coche de prácticas y bajo el capó */}
+      <Section tone="plain" labelledBy="coche3d-title" className="!pb-0">
+        <div className="grid gap-4">
+          <DarkPromo
+            id="coche3d-title"
+            image="/img/coche/general.webp"
+            alt="El coche de prácticas de Autoescuela Reyes en 3D, blanco con franjas amarillas"
+            contain
+            eyebrow="Nuevo · En 3D"
+            title="Súbete a nuestro coche de prácticas."
+            body="Siéntate al volante antes de tu primera clase: aprende dónde está cada mando, cuándo se usa cada luz y qué revisar en las ruedas. Con un test de 10 preguntas."
+            href="/conoce-tu-coche"
+            cta="Conoce tu coche"
+          />
+          <DarkPromo
+            id="capo-title"
+            image="/img/capo/motor.webp"
+            alt="Compartimento del motor en 3D con el radiador, la batería y los depósitos"
+            eyebrow="En 3D"
+            title="Aprende qué hay bajo el capó."
+            body="Gira cada pieza, mírala por dentro y aprende a revisar el aceite, el refrigerante, los frenos o la batería. Con preguntas tipo test para el examen."
+            href="/bajo-el-capo"
+            cta="Abrir el explorador"
+          />
         </div>
       </Section>
 
