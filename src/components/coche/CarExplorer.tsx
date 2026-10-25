@@ -163,7 +163,7 @@ export function CarExplorer({ initialVista, initialMando, initialDetalle }: { in
   };
 
   return (
-    <div className={`car-stage relative h-[calc(100svh-64px)] min-h-[560px] overflow-hidden ${night ? "is-night" : ""}`}>
+    <div className={`car-stage relative h-[calc(100svh-64px)] min-h-[560px] overflow-hidden ${night ? "is-night" : ""} ${viewer.dentro ? "is-dentro" : ""}`}>
       {/* título gigante de fondo */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-[9%] text-center">
         <span key={vistaInfo.titulo} className="car-bigtitle">

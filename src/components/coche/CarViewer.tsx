@@ -1,11 +1,11 @@
 "use client";
 
-import { CameraControls, ContactShadows, Environment, Lightformer, RoundedBox, useProgress } from "@react-three/drei";
+import { CameraControls, ContactShadows, Environment, Lightformer, useProgress } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import * as THREE from "three";
 import { MANDOS, OJOS, type Cam } from "@/content/coche";
-import { CarModel, type LightState } from "./CarModel";
+import { CarModel, RoofSign, type LightState } from "./CarModel";
 import { Cockpit, type CabinState } from "./Cockpit";
 import { Hotspot, HotspotCtx, HotspotOverlay, HotspotProjector, HotspotStore } from "./hotspots";
 
@@ -40,44 +40,6 @@ function Medidas() {
       <Hotspot id="largo" group="ficha" kind="medida" label="4,07 m" position={[X, 0.02, 0.6]} />
       <Hotspot id="alto" group="ficha" kind="medida" label="1,45 m" position={[X, 0.75, 2.3]} />
       <Hotspot id="ejes" group="ficha" kind="medida" label="2,58 m entre ejes" position={[X - 0.18, 0.315, -0.075]} />
-    </group>
-  );
-}
-
-/** Placa de autoescuela en el techo: «L» blanca sobre fondo azul, por las dos caras. */
-function RoofSign() {
-  const tex = useMemo(() => {
-    if (typeof document === "undefined") return null;
-    const c = document.createElement("canvas");
-    c.width = 256;
-    c.height = 192;
-    const g = c.getContext("2d")!;
-    g.fillStyle = "#1d4fb8";
-    g.fillRect(0, 0, 256, 192);
-    g.fillStyle = "#fff";
-    g.font = "900 150px Arial";
-    g.textAlign = "center";
-    g.textBaseline = "middle";
-    g.fillText("L", 128, 102);
-    const t = new THREE.CanvasTexture(c);
-    t.colorSpace = THREE.SRGBColorSpace;
-    return t;
-  }, []);
-  return (
-    <group position={[0, 1.47, -0.15]}>
-      <RoundedBox args={[0.46, 0.05, 0.22]} radius={0.02} position={[0, 0.02, 0]}>
-        <meshStandardMaterial color="#16181c" roughness={0.6} />
-      </RoundedBox>
-      <RoundedBox args={[0.34, 0.25, 0.05]} radius={0.02} position={[0, 0.17, 0]}>
-        <meshStandardMaterial color="#f7ce3e" roughness={0.5} />
-      </RoundedBox>
-      {tex &&
-        [0.026, -0.026].map((z) => (
-          <mesh key={z} position={[0, 0.17, z]} rotation={[0, z < 0 ? Math.PI : 0, 0]}>
-            <planeGeometry args={[0.3, 0.21]} />
-            <meshStandardMaterial map={tex} roughness={0.4} />
-          </mesh>
-        ))}
     </group>
   );
 }
@@ -208,6 +170,7 @@ export default function CarViewer({
       >
         <HotspotCtx.Provider value={hotspots}>
           <FovRig dentro={dentro} />
+          <CabinLights dentro={dentro} night={night} />
           <hemisphereLight args={[night ? "#3a4566" : "#eef2fa", night ? "#05060a" : "#1d2028", night ? 0.25 : 0.9]} />
           <directionalLight position={[5, 8, 4]} intensity={night ? 0.15 : 1.6} />
           <Environment resolution={256} frames={1} key={night ? "n" : "d"}>
@@ -232,6 +195,46 @@ export default function CarViewer({
         <div className="pointer-events-none absolute inset-x-0 bottom-24 text-center text-[14px] text-white/70">Cargando el coche… {Math.round(progress)} %</div>
       )}
     </div>
+  );
+}
+
+/** Luz de cabina: solo con la cámara dentro; entra con un fundido y de noche queda tenue. */
+function CabinLights({ dentro, night }: { dentro: boolean; night: boolean }) {
+  const gl = useThree((s) => s.gl);
+  const scene = useThree((s) => s.scene);
+  const invalidate = useThree((s) => s.invalidate);
+  const amb = useRef<THREE.AmbientLight>(null);
+  const techo = useRef<THREE.PointLight>(null);
+  const ventana = useRef<THREE.DirectionalLight>(null);
+  const frente = useRef<THREE.DirectionalLight>(null);
+  const k = useRef(0);
+  useEffect(() => {
+    if (ventana.current) ventana.current.target.position.set(0.1, 0.8, 0.5);
+    if (frente.current) frente.current.target.position.set(0.35, 0.85, 0.3);
+    ventana.current?.target.updateMatrixWorld();
+    frente.current?.target.updateMatrixWorld();
+    invalidate();
+  }, [dentro, night, invalidate]);
+  useFrame((_, dt) => {
+    const goal = dentro ? (night ? 0.45 : 1) : 0;
+    k.current += (goal - k.current) * Math.min(1, dt * 8);
+    if (Math.abs(goal - k.current) < 0.002) k.current = goal;
+    else invalidate();
+    const f = k.current;
+    if (amb.current) amb.current.intensity = 0.6 * f;
+    if (techo.current) techo.current.intensity = (night ? 3 : 1.6) * f;
+    if (ventana.current) ventana.current.intensity = 1.2 * f;
+    if (frente.current) frente.current.intensity = 0.5 * f;
+    scene.environmentIntensity = 1 + (dentro && !night ? 0.6 : 0) * f;
+    gl.toneMappingExposure = dentro ? (night ? 1 : 1 + 0.15 * f) : 1;
+  });
+  return (
+    <>
+      <ambientLight ref={amb} intensity={0} />
+      <pointLight ref={techo} position={[0.35, 1.32, -0.15]} color={night ? "#ffe8cc" : "#fff4e6"} intensity={0} distance={2.5} decay={1.5} />
+      <directionalLight ref={ventana} position={[2, 1.4, 0.3]} color="#e8f0ff" intensity={0} />
+      <directionalLight ref={frente} position={[0, 2, 3]} intensity={0} />
+    </>
   );
 }
 

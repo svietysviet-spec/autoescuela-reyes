@@ -1,6 +1,6 @@
 "use client";
 
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
@@ -53,6 +53,15 @@ const shown = (o: THREE.Object3D | null) => {
 
 /** Dentro del Canvas: coloca cada etiqueta en su sitio en cada fotograma. */
 export function LabelProjector({ store }: { store: LabelStore }) {
+  // las etiquetas HTML se crean fuera del lienzo después de registrarse: dos fotogramas después, se colocan
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(
+    () =>
+      store.subscribe(() => {
+        requestAnimationFrame(() => requestAnimationFrame(() => invalidate()));
+      }),
+    [store, invalidate],
+  );
   useFrame(({ camera, size }) => {
     store.items.forEach((it) => {
       if (!it.el) return;

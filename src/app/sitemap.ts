@@ -1,12 +1,12 @@
 import type { MetadataRoute } from "next";
-import { PIEZAS } from "@/content/capo";
+import { PIEZAS, PIEZA_DEFECTO } from "@/content/capo";
 import { MANDOS, VISTAS } from "@/content/coche";
 import { SITE } from "@/lib/site";
 
 const ROUTES = ["", "/permiso-b", "/permisos-moto", "/permiso-c", "/permiso-e", "/permiso-d", "/cap", "/recuperacion-de-puntos", "/nosotros", "/bajo-el-capo", "/conoce-tu-coche"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const piezas = PIEZAS.filter((p) => p.disponible && p.slug !== "aceite").map((p) => ({
+  const piezas = PIEZAS.filter((p) => p.disponible && p.slug !== PIEZA_DEFECTO).map((p) => ({
     url: `${SITE.url}/bajo-el-capo?pieza=${p.slug}`,
     priority: 0.6,
   }));

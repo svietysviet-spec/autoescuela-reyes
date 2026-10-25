@@ -14,6 +14,7 @@ import { PIEZAS, SISTEMAS, getPieza, type Pieza } from "@/content/capo";
 import { Ficha } from "./Ficha";
 import { Minimap } from "./Minimap";
 import { Testigos } from "./Testigos";
+import type { Fase } from "./models/Motor";
 
 const Viewer = dynamic(() => import("./Viewer"), {
   ssr: false,
@@ -90,10 +91,10 @@ function StaticFallback({ pieza, note = true }: { pieza: Pieza; note?: boolean }
     <div className="relative h-full">
       <Image
         src={`/img/capo/${pieza.slug}.webp`}
-        alt={`Ilustración de: ${pieza.nombre}`}
+        alt={pieza.slug === "motor" ? "El coche de prácticas con el capó abierto: el motor y los depósitos del vano" : `Ilustración de: ${pieza.nombre}`}
         fill
         sizes="(min-width: 1024px) 60vw, 100vw"
-        className="object-contain p-[14%]"
+        className={pieza.slug === "motor" ? "object-cover" : "object-contain p-[14%]"}
       />
       {note && (
         <p className="absolute inset-x-0 bottom-3 text-center text-[13px] text-white/60">
@@ -157,6 +158,32 @@ export function Explorer({ initialSlug }: { initialSlug: string }) {
   const [focus, setFocus] = useState<string | null>(null);
   const isMotor = pieza.slug === "motor";
   const fichaPieza = isMotor && focus ? getPieza(focus) : pieza;
+  // vista general: el capó empieza cerrado (abierto si se pide menos movimiento)
+  const [openPref, setOpen] = useState<boolean | null>(null);
+  const open = openPref ?? reduced;
+  // la varilla la coloca el alumno (con menos movimiento ya viene puesta)
+  const [rodPref, setRod] = useState<boolean | null>(null);
+  const rod = rodPref ?? reduced;
+  const [fase, setFase] = useState<Fase>("cerrado");
+  const capoListo = !isMotor || fase === "abierto";
+  const closeCapo = () => {
+    setFocus(null);
+    setOpen(false);
+    setRod(false);
+  };
+  // un solo botón que cambia según el momento (no desaparece, así no se pierde el foco del teclado)
+  const capoBtn =
+    !open
+      ? fase === "cerrado"
+        ? { text: "Abrir capó", act: () => setOpen(true) }
+        : { text: "Cerrando…" }
+      : fase === "varilla"
+        ? { text: "Colocar la varilla", act: () => setRod(true) }
+        : { text: fase === "cerrado" ? "Cargando el coche…" : rod ? "Colocando la varilla…" : "Abriendo…" };
+  const pickTestigo = (s: string) => {
+    setFocus(s);
+    setOpen(true);
+  };
 
   const steps = pieza.animacion ?? [];
 
@@ -166,6 +193,8 @@ export function Explorer({ initialSlug }: { initialSlug: string }) {
     setPlaying(false);
     setHidden({});
     setFocus(null);
+    setOpen(null);
+    setRod(null);
     window.history.replaceState(null, "", `?pieza=${s}`);
   };
 
@@ -255,6 +284,12 @@ export function Explorer({ initialSlug }: { initialSlug: string }) {
                 onStepEnd={handleStepEnd}
                 focus={isMotor ? focus : null}
                 onPick={setFocus}
+                open={open}
+                rod={rod}
+                lite={!desktop}
+                onHoodClick={() => setOpen(true)}
+                onRodClick={() => setRod(true)}
+                onFase={setFase}
               />
             </Boundary>
           )}
@@ -287,7 +322,7 @@ export function Explorer({ initialSlug }: { initialSlug: string }) {
           {webgl && isMotor && (
             <Testigos
               active={focus}
-              onPick={setFocus}
+              onPick={pickTestigo}
               className="capo-panel absolute left-4 top-4 hidden w-[230px] p-3 lg:block"
             />
           )}
@@ -361,9 +396,40 @@ export function Explorer({ initialSlug }: { initialSlug: string }) {
             </div>
           )}
 
+          {/* abrir el capó (vista general) */}
+          {webgl && isMotor && !capoListo && (
+            <div className="absolute inset-x-0 bottom-4 flex flex-col items-center gap-2 px-4">
+              <button
+                type="button"
+                className={`btn btn-accent h-12 px-6 shadow-lg ${capoBtn.act ? "" : "opacity-70"}`}
+                onClick={capoBtn.act}
+                aria-disabled={!capoBtn.act}
+              >
+                {capoBtn.text}
+              </button>
+              {!open && fase === "cerrado" && <p className="text-[13px] text-white/60">Abre el capó para ver el motor.</p>}
+              {fase === "varilla" && (
+                <p className="max-w-[320px] text-center text-[13px] text-white/75">
+                  Sujeta el capó: pulsa la varilla que brilla en el frontal o el botón.
+                </p>
+              )}
+            </div>
+          )}
+          {isMotor && (
+            <p className="sr-only" aria-live="polite">
+              {fase === "abierto"
+                ? "Capó abierto"
+                : fase === "cerrado"
+                  ? "Capó cerrado"
+                  : fase === "varilla"
+                    ? "Capó levantado. Coloca la varilla para sujetarlo."
+                    : ""}
+            </p>
+          )}
+
           {/* controles (flotan sobre el visor en escritorio) */}
           <div
-            className={`capo-panel absolute bottom-4 left-1/2 hidden -translate-x-1/2 items-center gap-3 px-4 py-3 ${webgl ? "lg:flex" : ""}`}
+            className={`capo-panel absolute bottom-4 left-1/2 hidden -translate-x-1/2 items-center gap-3 px-4 py-3 ${webgl && capoListo ? "lg:flex" : ""}`}
           >
             <Controls
               {...{
@@ -379,6 +445,7 @@ export function Explorer({ initialSlug }: { initialSlug: string }) {
                 hasExplode: !isMotor,
                 startAnim,
                 animOn: step >= 0,
+                onClose: isMotor ? closeCapo : undefined,
               }}
             />
           </div>
@@ -386,7 +453,7 @@ export function Explorer({ initialSlug }: { initialSlug: string }) {
 
         {/* controles y capas en el móvil */}
         <div className="capo-mobilebar lg:hidden" hidden={!webgl}>
-          <div className="flex items-center gap-2 overflow-x-auto px-4 py-3">
+          <div className="flex items-center gap-2 overflow-x-auto px-4 py-3" hidden={!capoListo}>
             <Controls
               {...{
                 explode,
@@ -401,11 +468,12 @@ export function Explorer({ initialSlug }: { initialSlug: string }) {
                 hasExplode: !isMotor,
                 startAnim,
                 animOn: step >= 0,
+                onClose: isMotor ? closeCapo : undefined,
               }}
             />
           </div>
           {isMotor && (
-            <Testigos active={focus} onPick={setFocus} className="px-4 pb-3" />
+            <Testigos active={focus} onPick={pickTestigo} className="px-4 pb-3" />
           )}
           {pieza.capas && (
             <div className="flex gap-2 overflow-x-auto px-4 pb-3">
@@ -493,6 +561,7 @@ function Controls({
   hasAnim,
   startAnim,
   animOn,
+  onClose,
 }: {
   explode: number;
   setExplode: (v: number) => void;
@@ -506,9 +575,16 @@ function Controls({
   hasAnim: boolean;
   startAnim: () => void;
   animOn: boolean;
+  /** vista general: cerrar el capó */
+  onClose?: () => void;
 }) {
   return (
     <>
+      {onClose && (
+        <button type="button" className="capo-btn capo-btn-accent" onClick={onClose} aria-expanded>
+          Cerrar capó
+        </button>
+      )}
       {hasExplode && (
         <label className="flex shrink-0 items-center gap-2 text-[13px] font-semibold text-white/80">
           Explode

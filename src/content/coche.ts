@@ -175,7 +175,7 @@ export const MANDOS: Mando[] = [
     nombre: "Freno de mano",
     corto: "Freno de mano",
     punto: [0.06, 0.62, -0.02],
-    cam: { pos: [0.28, 1.0, -0.25], target: [0.06, 0.58, 0.02] },
+    cam: { pos: [0.02, 1.08, 0.3], target: [0.06, 0.56, -0.08] },
     queEs: "La palanca entre los dos asientos delanteros. Mantiene el coche inmovilizado cuando está parado.",
     comoSeUsa: [
       "Para ponerlo: tira de la palanca hacia arriba con firmeza.",

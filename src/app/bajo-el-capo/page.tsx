@@ -41,7 +41,7 @@ export default function BajoElCapo({ searchParams }: Props) {
           id="capo-uso"
           eyebrow="Bajo el capó"
           title="Aprende tu coche por dentro."
-          lead="Gira la pieza con el ratón o el dedo, acerca con la rueda o pellizcando y usa Explode, Rayos X y Corte para ver qué hay dentro. Cada pieza tiene su ficha con lo que cae en el examen."
+          lead="Abre el capó del coche de prácticas y pulsa cada pieza para ver dónde está y cómo se revisa. En la vista de cada pieza puedes girarla, separarla con Explode y usar Rayos X y Corte para ver qué hay dentro. Cada pieza tiene su ficha con lo que cae en el examen."
         />
         <ul className="flex flex-wrap gap-2">
           {PIEZAS.filter((p) => p.disponible).map((p) => (

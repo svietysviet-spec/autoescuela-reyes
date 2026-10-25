@@ -521,7 +521,7 @@ export const PIEZAS: Pieza[] = [
   },
 ];
 
-export const PIEZA_DEFECTO = "aceite";
+export const PIEZA_DEFECTO = "motor";
 
 export function getPieza(slug: string | undefined | null) {
   return PIEZAS.find((p) => p.slug === slug && p.disponible) ?? PIEZAS.find((p) => p.slug === PIEZA_DEFECTO)!;

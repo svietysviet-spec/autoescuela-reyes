@@ -12,6 +12,8 @@ export type ViewState = {
   cut: boolean;
   hidden: Record<string, boolean>;
   reduced: boolean;
+  /** plano de corte propio (en el vano, uno por pieza); si falta, CUT_PLANE */
+  cutPlane?: THREE.Plane;
 };
 
 export const ViewCtx = createContext<ViewState>({ explode: 0, labels: true, xray: false, cut: false, hidden: {}, reduced: false });
@@ -109,7 +111,7 @@ export function Part({
 
 /** Material de carcasa: se vuelve translúcido con rayos X y se corta con el plano de corte. */
 export function ShellMaterial({ color, roughness = 0.5, metalness = 0.55 }: { color: string; roughness?: number; metalness?: number }) {
-  const { xray, cut } = useView();
+  const { xray, cut, cutPlane = CUT_PLANE } = useView();
   return (
     <meshStandardMaterial
       key={`${xray}-${cut}`}
@@ -120,14 +122,14 @@ export function ShellMaterial({ color, roughness = 0.5, metalness = 0.55 }: { co
       opacity={xray ? 0.14 : 1}
       depthWrite={!xray}
       side={cut ? THREE.DoubleSide : THREE.FrontSide}
-      clippingPlanes={cut ? [CUT_PLANE] : []}
+      clippingPlanes={cut ? [cutPlane] : []}
     />
   );
 }
 
 /** Plástico translúcido de los depósitos: siempre deja ver el líquido. */
 export function TankMaterial({ color = "#f2f4f7" }: { color?: string }) {
-  const { cut } = useView();
+  const { cut, cutPlane = CUT_PLANE } = useView();
   return (
     <meshStandardMaterial
       key={`${cut}`}
@@ -138,7 +140,7 @@ export function TankMaterial({ color = "#f2f4f7" }: { color?: string }) {
       opacity={0.28}
       depthWrite={false}
       side={THREE.DoubleSide}
-      clippingPlanes={cut ? [CUT_PLANE] : []}
+      clippingPlanes={cut ? [cutPlane] : []}
     />
   );
 }

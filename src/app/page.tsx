@@ -169,10 +169,10 @@ export default function Home() {
           <DarkPromo
             id="capo-title"
             image="/img/capo/motor.webp"
-            alt="Compartimento del motor en 3D con el radiador, la batería y los depósitos"
+            alt="El coche de prácticas con el capó abierto: motor, batería y depósitos en 3D"
             eyebrow="En 3D"
             title="Aprende qué hay bajo el capó."
-            body="Gira cada pieza, mírala por dentro y aprende a revisar el aceite, el refrigerante, los frenos o la batería. Con preguntas tipo test para el examen."
+            body="Abre el capó de nuestro coche de prácticas, pulsa cada pieza y aprende a revisar el aceite, el refrigerante, los frenos o la batería. Con preguntas tipo test para el examen."
             href="/bajo-el-capo"
             cta="Abrir el explorador"
           />

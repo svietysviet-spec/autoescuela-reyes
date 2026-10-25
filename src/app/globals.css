@@ -659,6 +659,10 @@ body {
   .car-stage canvas {
     touch-action: none;
   }
+  .car-stage.is-dentro .car-bigtitle {
+    color: rgb(255 255 255 / 0.03);
+    filter: blur(6px);
+  }
   .car-bigtitle {
     display: inline-block;
     font-size: clamp(84px, 19vw, 300px);

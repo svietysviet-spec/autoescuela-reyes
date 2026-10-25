@@ -61,12 +61,22 @@ for (const node of root.listNodes()) {
   if (DROP.test(name) || ["Object_4", "Object_5", "Object_9", "Object_10"].includes(node.getName())) node.dispose();
 }
 
+// el capó (Object_107) queda como pieza propia, «capo», para poder abrirlo en «Bajo el capó»;
+// el resto pierde el nombre y se une por material
+for (const node of root.listNodes()) {
+  const mesh = node.getMesh();
+  if (!mesh) continue;
+  const hood = node.getName() === "Object_107";
+  node.setName(hood ? "capo" : "");
+  mesh.setName(hood ? "capo" : "");
+}
+
 // 3 · une piezas por material, suelda vértices y comprime (calidad completa para escritorio)
 // ojo: todos los materiales del original son iguales (blancos); no se deduplican para no perder sus nombres
 await doc.transform(
   prune(),
   dedup({ propertyTypes: [PropertyType.ACCESSOR, PropertyType.MESH, PropertyType.TEXTURE] }),
-  join({ keepNamed: false }),
+  join({ keepNamed: true }),
   weld(),
   prune({ keepAttributes: true }),
 );

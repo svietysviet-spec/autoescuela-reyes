@@ -1,8 +1,8 @@
 "use client";
 
-import { useGLTF } from "@react-three/drei";
+import { RoundedBox, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { applyLivery } from "./livery";
 
@@ -68,7 +68,7 @@ function buildMaterials() {
     Grille2: std("#2a2d33", 0.5, 0.4),
     UnderCarrier: std("#0d0e10", 0.9),
     Chrome1: chrome,
-    Mirrors: std("#aab3bd", 0.05, 1),
+    Mirrors: std("#aab3bd", 0.12, 0.85, { emissive: new THREE.Color("#3a4656"), emissiveIntensity: 0.6 }),
     Windows: glass,
     HeadLightsGlass: lensClear,
     HeadLightsBase: head,
@@ -86,13 +86,25 @@ function buildMaterials() {
     BrakeRotors: std("#7d838b", 0.4, 0.8),
     BrakeRotors1: std("#6b7078", 0.5, 0.7),
     Calipers: std("#2b2e34", 0.5, 0.4),
-    Interior: std("#2a2d33", 0.85),
-    Default_Material: std("#202227", 0.8),
+    Interior: std("#3a3d44", 0.8),
+    Default_Material: std("#2e3036", 0.8),
   };
   return { map, head, tail, signalSide, opaque: new Set([body, plastic, map.Interior, map.Default_Material]) };
 }
 
-export function CarModel({ url, lights }: { url: string; lights: React.RefObject<LightState> }) {
+export function CarModel({
+  url,
+  lights,
+  carve = true,
+  onHood,
+}: {
+  url: string;
+  lights: React.RefObject<LightState>;
+  /** recorta el salpicadero original para montar la cabina propia (solo en «Tu coche») */
+  carve?: boolean;
+  /** recibe el capó (pieza propia del modelo) para poder abrirlo */
+  onHood?: (hood: THREE.Object3D) => void;
+}) {
   const gltf = useGLTF(url, false, true);
   const { scene, mats } = useMemo(() => {
     const mats = buildMaterials();
@@ -103,8 +115,10 @@ export function CarModel({ url, lights }: { url: string; lights: React.RefObject
       const name = (mesh.material as THREE.Material).name.replace("M_2021_Kia_Rio_Hatchback_", "");
       const m = mats.map[name] ?? mats.map.Default_Material;
       if (mats.opaque.has(m)) {
-        m.clippingPlanes = CARVE_PLANES;
-        m.clipIntersection = true;
+        if (carve) {
+          m.clippingPlanes = CARVE_PLANES;
+          m.clipIntersection = true;
+        }
         m.side = THREE.DoubleSide;
       }
       mesh.material = m;
@@ -112,7 +126,11 @@ export function CarModel({ url, lights }: { url: string; lights: React.RefObject
       mesh.receiveShadow = false;
     });
     return { scene, mats };
-  }, [gltf]);
+  }, [gltf, carve]);
+  useEffect(() => {
+    const hood = scene.getObjectByName("capo");
+    if (hood && onHood) onHood(hood);
+  }, [scene, onHood]);
   useFrame(() => {
     const l = lights.current;
     if (!l) return;
@@ -123,6 +141,44 @@ export function CarModel({ url, lights }: { url: string; lights: React.RefObject
   });
 
   return <primitive object={scene} />;
+}
+
+/** Placa de autoescuela en el techo: «L» blanca sobre fondo azul, por las dos caras. */
+export function RoofSign() {
+  const tex = useMemo(() => {
+    if (typeof document === "undefined") return null;
+    const c = document.createElement("canvas");
+    c.width = 256;
+    c.height = 192;
+    const g = c.getContext("2d")!;
+    g.fillStyle = "#1d4fb8";
+    g.fillRect(0, 0, 256, 192);
+    g.fillStyle = "#fff";
+    g.font = "900 150px Arial";
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillText("L", 128, 102);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }, []);
+  return (
+    <group position={[0, 1.47, -0.15]}>
+      <RoundedBox args={[0.46, 0.05, 0.22]} radius={0.02} position={[0, 0.02, 0]}>
+        <meshStandardMaterial color="#16181c" roughness={0.6} />
+      </RoundedBox>
+      <RoundedBox args={[0.34, 0.25, 0.05]} radius={0.02} position={[0, 0.17, 0]}>
+        <meshStandardMaterial color="#f7ce3e" roughness={0.5} />
+      </RoundedBox>
+      {tex &&
+        [0.026, -0.026].map((z) => (
+          <mesh key={z} position={[0, 0.17, z]} rotation={[0, z < 0 ? Math.PI : 0, 0]}>
+            <planeGeometry args={[0.3, 0.21]} />
+            <meshStandardMaterial map={tex} roughness={0.4} />
+          </mesh>
+        ))}
+    </group>
+  );
 }
 
 export const preloadCar = (url: string) => useGLTF.preload(url, false, true);

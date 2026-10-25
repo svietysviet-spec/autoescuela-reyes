@@ -79,7 +79,7 @@ const SEL: Record<string, string[]> = {
 };
 
 const DRIVER_X = 0.37;
-const DARK = "#1f2227";
+const DARK = "#30333a";
 
 /** Iconos del cuadro dibujados una sola vez. */
 function iconTexture(draw: (g: CanvasRenderingContext2D) => void) {
@@ -328,18 +328,18 @@ export function Cockpit({ state, lights, selected }: { state: React.RefObject<Ca
   const glow = useMemo(() => {
     const m = (color: string) => new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0.2, emissive: new THREE.Color("#f7ce3e"), emissiveIntensity: 0 });
     const base: Record<GlowKey, string> = {
-      stalkL: "#2a2d33",
-      stalkR: "#2a2d33",
-      claxon: "#17191d",
-      warning: "#2a2d33",
-      clima: "#24272d",
-      defrost: "#24272d",
-      cambios: "#121316",
-      freno: "#2a2d33",
+      stalkL: "#3a3d44",
+      stalkR: "#3a3d44",
+      claxon: "#26282d",
+      warning: "#3a3d44",
+      clima: "#34373e",
+      defrost: "#34373e",
+      cambios: "#2a2c31",
+      freno: "#3a3d44",
       pedales: "#3b3f46",
       profesor: "#4a4320",
-      cuadro: "#15171a",
-      cinturon: "#2b2e34",
+      cuadro: "#1c1f24",
+      cinturon: "#3a3d44",
     };
     return Object.fromEntries(GLOW_KEYS.map((k) => [k, m(base[k])])) as Record<GlowKey, THREE.MeshStandardMaterial>;
   }, []);
@@ -487,7 +487,7 @@ export function Cockpit({ state, lights, selected }: { state: React.RefObject<Ca
     // testigos: al probarlos se encienden todos un momento, como al arrancar
     const test = now - s.prueba < 2200;
     const ic = icons.current;
-    const set = (id: string, lit: boolean, color: string) => ic[id]?.color.set(lit || test ? color : "#3a3f48");
+    const set = (id: string, lit: boolean, color: string) => ic[id]?.color.set(lit || test ? color : "#59606b");
     set("izq", !!l?.izq, "#3ddc84");
     set("der", !!l?.der, "#3ddc84");
     set("faro", s.luces === 2, "#3ddc84");
@@ -497,7 +497,7 @@ export function Cockpit({ state, lights, selected }: { state: React.RefObject<Ca
     set("aceite", false, "#ff3b30");
     set("bateria", false, "#ff3b30");
     set("motor", false, "#ffb020");
-    const led = (id: string, lit: boolean) => leds.current[id]?.color.set(lit ? "#ffb020" : "#2c3038");
+    const led = (id: string, lit: boolean) => leds.current[id]?.color.set(lit ? "#ffb020" : "#4a505a");
     led("parabrisas", s.parabrisas);
     led("luneta", s.luneta);
     led("ac", s.ac);
@@ -534,7 +534,7 @@ export function Cockpit({ state, lights, selected }: { state: React.RefObject<Ca
       )}
       <mesh position={[0, -0.0085, -0.0066]} rotation={[0, Math.PI, 0]}>
         <planeGeometry args={[0.012, 0.0025]} />
-        <meshBasicMaterial ref={(m) => { leds.current[id] = m; }} color="#2c3038" toneMapped={false} />
+        <meshBasicMaterial ref={(m) => { leds.current[id] = m; }} color="#4a505a" toneMapped={false} />
       </mesh>
     </group>
   );
@@ -546,10 +546,10 @@ export function Cockpit({ state, lights, selected }: { state: React.RefObject<Ca
         <meshStandardMaterial color={DARK} roughness={0.85} />
       </RoundedBox>
       <RoundedBox args={[1.44, 0.06, 0.4]} radius={0.03} position={[0, 1.03, 0.68]}>
-        <meshStandardMaterial color="#17191d" roughness={0.9} />
+        <meshStandardMaterial color="#2c2f35" roughness={0.8} />
       </RoundedBox>
       <RoundedBox args={[1.42, 0.16, 0.18]} radius={0.05} position={[0, 0.67, 0.8]}>
-        <meshStandardMaterial color="#1a1c21" roughness={0.9} />
+        <meshStandardMaterial color="#2c2f35" roughness={0.8} />
       </RoundedBox>
       {/* banda decorativa amarilla (detalle Reyes) */}
       <mesh position={[0, 0.955, 0.538]}>
@@ -561,7 +561,7 @@ export function Cockpit({ state, lights, selected }: { state: React.RefObject<Ca
       <RoundedBox args={[0.42, 0.11, 0.16]} radius={0.04} position={[DRIVER_X, 1.09, 0.63]} material={glow.cuadro} />
       <mesh position={[DRIVER_X, 1.03, 0.615]} rotation={[0.25, Math.PI, 0]}>
         <planeGeometry args={[0.38, 0.12]} />
-        <meshStandardMaterial color="#07080a" roughness={0.3} metalness={0.3} />
+        <meshStandardMaterial color="#1c1f24" roughness={0.3} metalness={0.3} />
       </mesh>
       {[-0.1, 0.1].map((dx) => (
         <mesh key={dx} position={[DRIVER_X + dx, 1.03, 0.612]} rotation={[0.25, Math.PI, 0]}>
@@ -585,19 +585,19 @@ export function Cockpit({ state, lights, selected }: { state: React.RefObject<Ca
         ).map(([id, dx, y]) => (
           <mesh key={id} position={[DRIVER_X + dx, y, 0.609 - (1.03 - y) * 0.25]} rotation={[0.25, Math.PI, 0]}>
             <planeGeometry args={[0.026, 0.026]} />
-            <meshBasicMaterial ref={(m) => { icons.current[id] = m; }} map={tex[id]} color="#3a3f48" transparent toneMapped={false} />
+            <meshBasicMaterial ref={(m) => { icons.current[id] = m; }} map={tex[id]} color="#59606b" transparent toneMapped={false} />
           </mesh>
         ))}
 
       {/* columna, volante y palancas */}
       <mesh position={[DRIVER_X, 0.87, 0.53]} rotation={[0.35 + Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0.035, 0.045, 0.2, 16]} />
-        <meshStandardMaterial color="#141518" roughness={0.8} />
+        <meshStandardMaterial color="#2a2c31" roughness={0.7} />
       </mesh>
       <group position={[DRIVER_X, 0.9, 0.42]} rotation={[0.35, 0, 0]}>
         <mesh>
           <torusGeometry args={[0.185, 0.024, 16, 64]} />
-          <meshStandardMaterial color="#121316" roughness={0.6} />
+          <meshStandardMaterial color="#2a2c31" roughness={0.45} />
         </mesh>
         <group ref={hub} position={[0, -0.01, 0.01]}>
           <RoundedBox args={[0.13, 0.1, 0.06]} radius={0.025} material={glow.claxon} />
@@ -613,7 +613,7 @@ export function Cockpit({ state, lights, selected }: { state: React.RefObject<Ca
         ].map(([x, y, r]) => (
           <mesh key={`${x}${y}`} position={[x, y, 0.005]} rotation={[0, 0, r]}>
             <boxGeometry args={[0.12, 0.03, 0.015]} />
-            <meshStandardMaterial color="#1b1d21" roughness={0.6} />
+            <meshStandardMaterial color="#33363c" roughness={0.5} />
           </mesh>
         ))}
       </group>
@@ -659,11 +659,11 @@ export function Cockpit({ state, lights, selected }: { state: React.RefObject<Ca
 
       {/* consola central: pantalla, emergencia y climatizador */}
       <RoundedBox args={[0.3, 0.34, 0.1]} radius={0.03} position={[0, 0.8, 0.57]}>
-        <meshStandardMaterial color="#1a1c20" roughness={0.8} />
+        <meshStandardMaterial color="#34373e" roughness={0.75} />
       </RoundedBox>
       <mesh position={[0, 0.93, 0.518]} rotation={[0, Math.PI, 0]}>
         <planeGeometry args={[0.24, 0.12]} />
-        <meshStandardMaterial color="#05070a" roughness={0.15} metalness={0.4} />
+        <meshStandardMaterial color="#141a24" roughness={0.15} metalness={0.4} emissive="#1d2a3d" emissiveIntensity={0.6} />
       </mesh>
       <group ref={warnBtn} position={[0, 0.855, 0.512]}>
         <RoundedBox args={[0.07, 0.035, 0.02]} radius={0.006} material={glow.warning} />
@@ -699,12 +699,12 @@ export function Cockpit({ state, lights, selected }: { state: React.RefObject<Ca
 
       {/* túnel central, palanca de cambios y freno de mano */}
       <RoundedBox args={[0.24, 0.14, 0.8]} radius={0.04} position={[0.03, 0.47, 0.1]}>
-        <meshStandardMaterial color="#1a1c20" roughness={0.85} />
+        <meshStandardMaterial color="#34373e" roughness={0.8} />
       </RoundedBox>
       <group ref={gear} position={[0.03, 0.54, 0.36]}>
         <mesh position={[0, 0.07, 0]}>
           <cylinderGeometry args={[0.009, 0.012, 0.14, 12]} />
-          <meshStandardMaterial color="#202227" metalness={0.5} roughness={0.4} />
+          <meshStandardMaterial color="#4a4e56" metalness={0.5} roughness={0.4} />
         </mesh>
         <mesh position={[0, 0.15, 0]} material={glow.cambios}>
           <sphereGeometry args={[0.032, 20, 16]} />
